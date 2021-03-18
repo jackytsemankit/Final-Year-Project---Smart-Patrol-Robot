@@ -14,6 +14,7 @@ function App() {
         <Route path="/" component={Home} exact />
         <Route path="/history" component={History} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/detail/:paramsdocid" component={DetailPage} />
         <Route path="/detail" component={DetailPage} />
         <Route component={Error} />
       </Switch>

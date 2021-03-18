@@ -148,7 +148,7 @@ while 1:
                     blob.make_public()
                     img.append(blob.public_url)
 
-
+            
 
             
             doc_ref.add({

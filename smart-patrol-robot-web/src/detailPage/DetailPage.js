@@ -10,11 +10,18 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
+import Button from '@material-ui/core/Button';
+import { useParams, Route } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
-import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
 import demo from './demo.png'; 
 import Title from '../components/Title';
+
+import firebaseConfig from '../config/Config'
+
+import firebase from 'firebase/app'
+import { TrendingUpRounded } from '@material-ui/icons';
+require("firebase/firestore");
 
 
 function Copyright(props) {
@@ -29,6 +36,27 @@ function Copyright(props) {
     </Typography>
   );
 }
+
+
+function CamImages(props) {
+  return (
+    <Grid item xs={12} md={4}>
+      <Paper className={props.classes.alignItemsAndJustifyContent}>
+          <img src={props.caseDetail['img'][props.index]} style={{width:'100%', height:'auto'}}/>
+      </Paper>
+  </Grid>
+  );
+}
+
+function EmptyImages(props) {
+  return (
+    <Grid item xs={12} md={4} >
+      <Paper className={props.classes.alignItemsAndJustifyContent}>
+      </Paper>
+  </Grid>
+  );
+}
+
 
 const drawerWidth = 240;
 
@@ -50,42 +78,15 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    boxSizing: 'border-box',
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
   appBarSpacer: theme.mixins.toolbar,
+
+  alignItemsAndJustifyContent: {
+    display: 'flex', 
+    flexDirection: 'column',
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   detailBox: {
     display: 'flex', 
@@ -96,12 +97,43 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function DetailPage() {
+export default function DetailPage(props) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+  const { paramsdocid } = useParams();
+  console.log(paramsdocid)
+  const history = useHistory();
+  const [caseDetail, setCaseDetail] = React.useState({})
+  const [fetched, setFetched] = React.useState(false)
+  const [docId, setDocId] = React.useState(paramsdocid)
+
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+  React.useEffect(() => {
+
+    return firebase.firestore().collection("cases").where(firebase.firestore.FieldPath.documentId(), "==", paramsdocid)
+    .onSnapshot(querySnapshot => {
+      var queryResult = {}
+      var id 
+      if (!querySnapshot.empty){
+        queryResult = querySnapshot.docs[0].data()
+        id = querySnapshot.docs[0].id
+        if (queryResult['solved']==="true"){
+          queryResult['solved'] = "Solved"
+        }
+  
+        if (queryResult['solved']==="false"){
+          queryResult['solved'] = "Unsolved"
+        }
+      }
+      console.log(queryResult)
+      setCaseDetail(queryResult)
+      setFetched(true)
+      setDocId(id)
+    });
+  }, []);
+
+
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -141,30 +173,86 @@ export default function DetailPage() {
           <Grid container spacing={3} mt={8}>
 
           {/* Thermal image */}
-          <Grid item xs={12}>
-              <Paper 
-                className={classes.alignItemsAndJustifyContent}
-              >
-                  <img src={demo} style={{width:'100%', height:'auto'}}/>
-              </Paper>
-            </Grid>
+          {fetched ? (
+            <CamImages index={0} classes={classes} caseDetail={caseDetail}></CamImages>
+          ):(
+            <EmptyImages classes={classes}/>
+          )
+          }
 
+          {fetched ? (
+            <CamImages index={1} classes={classes} caseDetail={caseDetail}></CamImages>
+          ):(
+            <EmptyImages classes={classes}/>
+          )
+          }
+
+          {fetched ? (
+            <CamImages index={2} classes={classes} caseDetail={caseDetail}></CamImages>
+          ):(
+            <EmptyImages classes={classes}/>
+          )
+          }
+
+          {fetched ? (
+                        <Grid item xs={12}>
+                        <Paper 
+                          className={classes.detailBox}
+                        >
+                          <Title > Unresolved Case #{caseDetail["caseid"]}</Title>
+                          <Typography component="p" variant="h6">
+                              Date: {caseDetail["date"]}
+                          </Typography>
+                          <Typography component="p" variant="h6">
+                              Time: {caseDetail["time"].trim()}
+                          </Typography>
+                          <Typography component="p" variant="h6">
+                              Average Temperature: {caseDetail["temp"].trim()}
+                          </Typography>
+                          <Typography component="p" variant="h6">
+                              Status: {caseDetail["solved"].trim()}
+                          </Typography>
+                          <Typography component="p" variant="h6">
+                              Location: InnoWing
+                          </Typography>
+                          
+                          {caseDetail["solved"]==="Unsolved" ? (
+                            <Button onClick={() => { 
+                              firebase.firestore().collection("cases").doc(docId)
+                              .update({solved: "true" })
+                              .then(
+                                history.push({pathname: "/dashboard"})
+                              );
+                            }} variant="outlined" color="#5e8257">Solve</Button>
+                          ):(
+                            <Button onClick={() => { 
+                              firebase.firestore().collection("cases").doc(docId)
+                              .update({solved: "false" })
+                              .then(
+                                history.push({pathname: "/dashboard"})
+                              );
+                            }} color="secondary">Undo solved</Button>
+                          )
+                          }
+
+
+                        </Paper>
+                      </Grid>
+          ):(
             <Grid item xs={12}>
-              <Paper 
-                className={classes.detailBox}
-              >
-                <Title > Unresolved Case #21</Title>
-                <Typography component="p" variant="h6">
-                    Date And Time: 3 Mar, 2021
-                </Typography>
-                <Typography component="p" variant="h6">
-                    Average Temperature: 38.8(C)
-                </Typography>
-                <Typography component="p" variant="h6">
-                    Location: InnoWing
-                </Typography>
-              </Paper>
-            </Grid>
+            <Paper 
+              className={classes.detailBox}
+            >
+              <Title > Unresolved Case </Title>
+              <Typography component="p" variant="h6">
+                  Loading
+              </Typography>
+            </Paper>
+          </Grid>
+          )
+          }
+
+
 
           
           </Grid>
