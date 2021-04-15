@@ -1,5 +1,10 @@
+from datetime import date
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
+import pandas as pd
+import cv2
+from skimage import io
+from datetime import date
 
 import chardet
 
@@ -17,9 +22,59 @@ cred = credentials.Certificate({
   
 }
 )
-firebase_admin.initialize_app(cred,{"storageBucket" : "airport-patrol-robot.appspot.com"})
 
-bucket = storage.bucket()
+def get_document(collection_reference):
+    today = date.today()
+    date_str = today.strftime("%Y-%m-%d")
+    results = collection_reference.where(u'date', u'==', date_str).where(u'duplicateChecked', u'==', u'false').get()
+    doc_dict_list = []
+    
+    for doc in results:
+        doc_dict_list.append(doc.to_dict())
 
-db = firestore.client()
+    df = pd.DataFrame(doc_dict_list)
 
+    return df
+
+def document_processing (document_df):
+    
+    df_grouped = document_df.groupby(by=["date", "time"])
+    col_to_
+
+    for index, group in df_grouped: 
+        if len(group) == 1:
+            # functions to upload the case to "unique_cases"
+            pass
+        else: 
+            # images_dict = {"1104": [], "480":[], "720": []}
+            # doc_images_list = group.img.to_list()
+            # for doc_img in doc_images_list:
+            #     for image in doc_img:
+            #         image_numpy = io.imread(image)
+            #         # i_cv2 = cv2.imread(image)
+            #         height, width, channels = image_numpy.shape
+            #         images_dict[height].append(image_numpy)
+            
+            # for image in images_dict["480"]:
+
+            #         pass
+
+            to_be_upload = group.head(1).to_dict('records')[0]
+
+            print(group)
+
+if __name__=="__main__":
+    firebase_admin.initialize_app(cred,{"storageBucket" : "airport-patrol-robot.appspot.com"})
+
+    bucket = storage.bucket()
+
+    db = firestore.client()
+    col_ref = db.collection(u'cases')
+
+    doc_df = get_document(col_ref)
+
+    process_df = document_processing(doc_df)
+
+    pass
+
+     

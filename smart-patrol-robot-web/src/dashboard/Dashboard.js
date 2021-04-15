@@ -75,7 +75,7 @@ export default function Dashboard() {
 
 
   //var currentDate =  new Date()
-  var currentDate = new Date("2021-04-09");
+  var currentDate = new Date("2021-04-15");
   currentDate = currentDate.toISOString().split('T')[0]
 
   // console.log(currentDate)
