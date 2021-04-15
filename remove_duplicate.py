@@ -30,20 +30,32 @@ def get_document(collection_reference):
     doc_dict_list = []
     
     for doc in results:
-        doc_dict_list.append(doc.to_dict())
+        id = doc.id
+        doc_dict = doc.to_dict()
+        doc_dict['id'] = id
+        doc_dict_list.append(doc_dict)
 
     df = pd.DataFrame(doc_dict_list)
 
     return df
 
-def document_processing (document_df):
+def document_processing (document_df, raw_ref, ref_to_be_added):
     
     df_grouped = document_df.groupby(by=["date", "time"])
-    col_to_
+
 
     for index, group in df_grouped: 
         if len(group) == 1:
             # functions to upload the case to "unique_cases"
+            to_be_uploaded = group.head(1).to_dict('records')[0]
+            upload_id = to_be_uploaded['id']
+            to_be_uploaded['duplicateChecked'] = "true"
+            to_be_uploaded.pop('id', None)
+
+            ref_to_be_added.document(upload_id).set(to_be_uploaded)
+
+            raw_ref.document(upload_id).update({u'duplicateChecked': 'true'})
+
             pass
         else: 
             # images_dict = {"1104": [], "480":[], "720": []}
@@ -59,9 +71,20 @@ def document_processing (document_df):
 
             #         pass
 
-            to_be_upload = group.head(1).to_dict('records')[0]
+            to_be_uploaded = group.head(1).to_dict('records')[0]
+            id_list = list(group.id.values)
+            upload_id = to_be_uploaded['id']
 
-            print(group)
+            to_be_uploaded['duplicateChecked'] = "true"
+            to_be_uploaded.pop('id', None)
+
+            ref_to_be_added.document(upload_id).set(to_be_uploaded)
+
+            for id in id_list:
+                raw_ref.document(id).update({u'duplicateChecked': 'true'})
+
+
+    print("processing_done")
 
 if __name__=="__main__":
     firebase_admin.initialize_app(cred,{"storageBucket" : "airport-patrol-robot.appspot.com"})
@@ -69,11 +92,12 @@ if __name__=="__main__":
     bucket = storage.bucket()
 
     db = firestore.client()
-    col_ref = db.collection(u'cases')
+    col_ref_cases = db.collection(u'cases')
+    col_ref_unique_cases = db.collection(u'unique_cases')
 
-    doc_df = get_document(col_ref)
+    doc_df = get_document(col_ref_cases)
 
-    process_df = document_processing(doc_df)
+    process_df = document_processing(doc_df, col_ref_cases ,col_ref_unique_cases)
 
     pass
 
