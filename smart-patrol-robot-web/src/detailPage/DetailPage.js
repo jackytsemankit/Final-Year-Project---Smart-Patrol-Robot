@@ -11,6 +11,10 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import HomeIcon from '@material-ui/icons/Home';
+
 import { useParams, Route } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 
@@ -143,6 +147,15 @@ export default function DetailPage(props) {
         className={clsx(classes.appBar)}
       >
         <Toolbar className={classes.toolbar}>
+        <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => history.push(
+              {pathname: "/dashboard/",
+              })}
+          >
+            <HomeIcon />
+          </IconButton>
           <Typography
             component="h1"
             variant="h6"
@@ -213,7 +226,7 @@ export default function DetailPage(props) {
                               Status: {caseDetail["solved"].trim()}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Location: InnoWing
+                              Zone: {caseDetail["zoneNo"]}
                           </Typography>
                           
                           {caseDetail["solved"]==="Unsolved" ? (

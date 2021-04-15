@@ -8,7 +8,8 @@ import Title from '../components/Title';
 import { useHistory } from "react-router";
 
 function getRowStyle(status) {
-  return { background: status==="Solved" ? '#ebebeb' : 'white' };
+  return { background: status==="Solved" ? '#ebebeb' : 'white',
+            hover: {color: '#7EA5FF'}};
 }
 function preventDefault(event) {
   event.preventDefault();
@@ -39,8 +40,8 @@ export default function CasesList(props) {
 
     })
 
-    casesCollectionSolved.sort((a, b) => (a.caseid > b.caseid) ? 1 : -1)
-    casesCollectionUnsolved.sort((a, b) => (a.caseid > b.caseid) ? 1 : -1)
+    casesCollectionSolved.sort((a, b) => (a.time < b.time) ? 1 : -1)
+    casesCollectionUnsolved.sort((a, b) => (a.time < b.time) ? 1 : -1)
     casesCollection = casesCollectionUnsolved.concat(casesCollectionSolved)
   } 
 
@@ -60,7 +61,7 @@ export default function CasesList(props) {
         </TableHead>
         <TableBody>
           {casesCollection.map((row) => (
-            <TableRow key={row.id} style={{...getRowStyle(row.solved)}}
+            <TableRow key={row.id} hover style={{...getRowStyle(row.solved)}}
             onClick={() => history.push(
               {pathname: "/detail/".concat(row.docId),
               // state: {caseDetail: row}

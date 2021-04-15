@@ -124,16 +124,18 @@ while 1:
                 except:
                     print("An exception occurred in regex")
 
-            
+            count = 0
+            part_list = []
             for part in msg.walk():
+                part_list.append(part)
                 if part.get_content_maintype() == 'multipart':
                     continue
                 if part.get('Content-Disposition') is None:
                     continue
-                fileName = part.get_filename()
+                fileName = str(count) + ".jpg"
 
                 if bool(fileName):
-                    
+                    count += 1
                     filePath = os.path.join(detach_dir, 'attachments', fileName)
                     #if not os.path.isfile(filePath) :
 
