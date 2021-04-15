@@ -4,10 +4,18 @@ import email
 import imaplib
 import os
 import re
+import requests
+import json
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
 import chardet
+"""
+try:
+    os.system("start python3 C:/uno100/api/uno.py uno100")
+except:
+    print("An exception occurred in calling flask")
+"""
 
 cred = credentials.Certificate({
   "type": "service_account",
@@ -83,6 +91,7 @@ if uids:
 server.logout()
 
 print ("listening to the inbox now")
+caseid=1
 while 1:
 
     server = imaplib.IMAP4_SSL(imap_ssl_host, imap_ssl_port)
@@ -95,7 +104,7 @@ while 1:
 
     uids = [int(s) for s in data[0].split()]
     for uid in uids:
-        #mylist=[]
+        download=False
         img=[]
         if uid > uid_max:
             result, data = server.uid('fetch', str(uid), '(RFC822)') 
@@ -115,8 +124,17 @@ while 1:
 
             # extract text data and upload to Firebase
             if text:
+                """
+                # call api to get current location of the robot
                 try:
-                    capturedatetime=re.search('Event Time: (.*)\n', text).group(1).split(" ")
+                    r = requests.get('http://192.168.8.150:5000/status')
+                except:
+                    print("An exception occurred in calling the api")
+                
+                loc=r.json()["base"]["location"]["current"]
+                """
+                try:
+                    capturedatetime=re.search('Event Time: (.*)\r', text).group(1).split(" ")
                     capdate = capturedatetime[0]
                     captime = capturedatetime[1]
                     temp=re.search('Skin-Surface Temperature:(\d+\.*\d*)' , text).group(1)
@@ -124,18 +142,20 @@ while 1:
                 except:
                     print("An exception occurred in regex")
 
-            count = 0
-            part_list = []
+            count=0
             for part in msg.walk():
-                part_list.append(part)
+
                 if part.get_content_maintype() == 'multipart':
                     continue
                 if part.get('Content-Disposition') is None:
                     continue
-                fileName = str(count) + ".jpg"
+                #print(captime)
+                fileName = part.get_filename()[16:30]+".jpg"
+
+                print("fileName: ", fileName)
 
                 if bool(fileName):
-                    count += 1
+                    
                     filePath = os.path.join(detach_dir, 'attachments', fileName)
                     #if not os.path.isfile(filePath) :
 
@@ -150,18 +170,20 @@ while 1:
                     blob.make_public()
                     img.append(blob.public_url)
 
-            
-
+                count+=1
             
             doc_ref.add({
+                u'caseid':caseid,
                 u'solved':"false",
                 u'date':capdate,
                 u'time':captime,
                 u'temp':temp,
                 u'wearmask':wearmask,
-                u'img':img
+                u'img':img,
+                #u'loc':loc
                 
                 })
+            caseid+=1
     
     server.logout()
     time.sleep(1)
