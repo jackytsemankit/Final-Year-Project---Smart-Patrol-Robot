@@ -94,6 +94,8 @@ export default function Dashboard() {
         querySnapshot.forEach(function(doc) {
           var docObj = doc.data();
           docObj["docId"] = doc.id
+          docObj["time"] = docObj["time"][docObj["time"].length-1]
+          docObj["temp"] = docObj["temp"][docObj["temp"].length-1]
           casesCollection.push(docObj);
         });
   
