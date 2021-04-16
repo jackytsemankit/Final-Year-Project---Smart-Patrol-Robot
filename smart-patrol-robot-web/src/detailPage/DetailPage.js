@@ -114,7 +114,7 @@ export default function DetailPage(props) {
 
   React.useEffect(() => {
 
-    return firebase.firestore().collection("cases").where(firebase.firestore.FieldPath.documentId(), "==", paramsdocid)
+    return firebase.firestore().collection("unique_cases").where(firebase.firestore.FieldPath.documentId(), "==", paramsdocid)
     .onSnapshot(querySnapshot => {
       var queryResult = {}
       var id 
@@ -217,13 +217,13 @@ export default function DetailPage(props) {
                               Date: {caseDetail["date"]}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Time: {caseDetail["time"].trim()}
+                              Time: {caseDetail["time"]}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Average Temperature: {caseDetail["temp"].trim()}
+                              Average Temperature: {caseDetail["temp"]}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Status: {caseDetail["solved"].trim()}
+                              Status: {caseDetail["solved"]}
                           </Typography>
                           <Typography component="p" variant="h6">
                               Zone: {caseDetail["zoneNo"]}
