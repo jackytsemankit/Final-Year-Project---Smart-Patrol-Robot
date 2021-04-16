@@ -135,14 +135,19 @@ export default function IntegratedDetailPage(props) {
         }
       }
       console.log(queryResult)
-      setCaseDetail(queryResult)
-      setFetched(true)
-      setDocId(id)
+      if (queryResult){
+        setCaseDetail(queryResult)
+        setFetched(true)
+        setDocId(id)
+      }
     });
   }, []);
 
   if (fetched){
-      var chartDataObj = caseDetail.tempdict
+      var chartDataObj = {}
+      var timeList = caseDetail.time
+      var tempList = caseDetail.temp
+      timeList.forEach((time, i) => chartDataObj[time]=tempList[i])
       var tempKey = Object.keys(chartDataObj).sort()
       var chartData = []
 
@@ -245,10 +250,10 @@ export default function IntegratedDetailPage(props) {
                               Date: {caseDetail["date"]}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Time: {caseDetail["time"]}
+                              Last updated time: {caseDetail["time"][caseDetail["time"].length-1]}
                           </Typography>
                           <Typography component="p" variant="h6">
-                              Average Temperature: {caseDetail["temp"]}
+                              Last updated Temperature: {caseDetail["temp"][caseDetail["time"].length-1]}
                           </Typography>
                           <Typography component="p" variant="h6">
                               Status: {caseDetail["solved"]}
@@ -259,7 +264,7 @@ export default function IntegratedDetailPage(props) {
                           
                           {caseDetail["solved"]==="Unsolved" ? (
                             <Button onClick={() => { 
-                              firebase.firestore().collection("cases").doc(docId)
+                              firebase.firestore().collection("processed_cases").doc(docId)
                               .update({solved: "true" })
                               .then(
                                 history.push({pathname: "/dashboard"})
@@ -267,7 +272,7 @@ export default function IntegratedDetailPage(props) {
                             }} variant="outlined">Solve</Button>
                           ):(
                             <Button onClick={() => { 
-                              firebase.firestore().collection("cases").doc(docId)
+                              firebase.firestore().collection("processed_cases").doc(docId)
                               .update({solved: "false" })
                               .then(
                                 history.push({pathname: "/dashboard"})

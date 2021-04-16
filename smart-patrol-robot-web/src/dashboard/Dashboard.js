@@ -85,7 +85,7 @@ export default function Dashboard() {
 
   React.useEffect(() => {
 
-    return firebase.firestore().collection("unique_cases").where("date", "==", currentDate)
+    return firebase.firestore().collection("processed_cases").where("date", "==", currentDate)
     .onSnapshot(querySnapshot => {
       var casesCollection = []
 
