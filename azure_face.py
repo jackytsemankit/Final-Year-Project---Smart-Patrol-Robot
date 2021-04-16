@@ -106,7 +106,7 @@ if __name__=="__main__":
         tempList=[]
         caseid=comparedDocList[0]["caseid"]
         zoneNo=comparedDocList[0]["zoneNo"]
-        date=comparedDocList[0]["zoneNo"]
+        date=comparedDocList[0]["date"]
         timeList=[]
         wearmask=comparedDocList[0]["wearmask"]
         imgList=[]
