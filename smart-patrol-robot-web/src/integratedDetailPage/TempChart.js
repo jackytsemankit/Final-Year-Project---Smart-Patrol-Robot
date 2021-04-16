@@ -8,12 +8,12 @@ function createData(time, amount) {
   return { time, amount };
 }
 
-export default function Chart(props) {
+export default function TempChart(props) {
   const theme = useTheme();
 
   return (
     <React.Fragment>
-      <Title>Today's cases</Title>
+      <Title>Temperature Change</Title>
       <ResponsiveContainer width={'99%'} height={200}>
         <LineChart
           data={props.chartData}
@@ -32,6 +32,8 @@ export default function Chart(props) {
           <YAxis
             stroke={theme.palette.text.secondary}
             style={theme.typography.body2}
+            type="number" 
+            domain={[35, 'dataMax']}
           >
             <Label
               angle={270}
@@ -42,7 +44,7 @@ export default function Chart(props) {
                 ...theme.typography.body1,
               }}
             >
-              No. of case(s)
+              Temperature
             </Label>
           </YAxis>
           <Line

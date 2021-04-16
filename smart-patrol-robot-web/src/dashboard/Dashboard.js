@@ -2,26 +2,23 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Drawer from '@material-ui/core/Drawer';
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
 import Chart from './Chart';
 import Unresolved from './Unresolved';
 import CasesList from './CasesList';
+import firebaseConfig from '../config/Config'
+
+import firebase from 'firebase/app'
+require("firebase/firestore");
+
+
 
 function Copyright(props) {
   return (
@@ -36,7 +33,11 @@ function Copyright(props) {
   );
 }
 
-const drawerWidth = 240;
+function createData(time, amount) {
+  return { time, amount };
+}
+
+// const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -55,41 +56,7 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    boxSizing: 'border-box',
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
+
   },
   appBarSpacer: theme.mixins.toolbar,
 
@@ -104,10 +71,100 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Dashboard() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+  const [casesList, setCasesList] = React.useState([])
+
+
+  //var currentDate =  new Date()
+  var currentDate = new Date("2021-04-15");
+  currentDate = currentDate.toISOString().split('T')[0]
+
+  // console.log(currentDate)
+
+
+  if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+  React.useEffect(() => {
+
+    return firebase.firestore().collection("unique_cases").where("date", "==", currentDate)
+    .onSnapshot(querySnapshot => {
+      var casesCollection = []
+
+      if (!querySnapshot.empty){
+
+        querySnapshot.forEach(function(doc) {
+          var docObj = doc.data();
+          docObj["docId"] = doc.id
+          casesCollection.push(docObj);
+        });
+  
+        casesCollection.forEach( function(obj, index) {
+            obj.id = index.toString();
+        })
+      }
+      setCasesList(casesCollection);
+    });
+  }, []);
+
+  var casesCounterByHour = {
+    "00": 0, 
+    "03": 0,
+    "06": 0,
+    "09": 0,
+    "12": 0,
+    "15": 0,
+    "18": 0,
+    "21": 0,
+    "24": 0,
+  }
+
+  var unresolvedCounter = 0 
+  casesList.forEach( doc => {
+    if(doc["solved"]==="false"){
+      unresolvedCounter++;
+    }
+
+    var hour = doc["time"].substring(0, 2)
+
+    if (hour==="00" || hour==="01" || hour==="02"){
+      casesCounterByHour["00"]++
+    }
+    if (hour==="03" || hour==="04" || hour==="05"){
+      casesCounterByHour["03"]++
+    }
+    if (hour==="06" || hour==="07" || hour==="08"){
+      casesCounterByHour["06"]++
+    }
+    if (hour==="09" || hour==="10" || hour==="11"){
+      casesCounterByHour["09"]++
+    }
+    if (hour==="12" || hour==="13" || hour==="14"){
+      casesCounterByHour["12"]++
+    }
+    if (hour==="15" || hour==="16" || hour==="17"){
+      casesCounterByHour["15"]++
+    }
+    if (hour==="18" || hour==="19" || hour==="20"){
+      casesCounterByHour["18"]++
+    }
+    if (hour==="21" || hour==="22" || hour==="23"){
+      casesCounterByHour["21"]++
+    }
+  })
+
+  var chartData = [
+    createData('00:00', casesCounterByHour["00"]),
+    createData('03:00', casesCounterByHour["03"]),
+    createData('06:00', casesCounterByHour["06"]),
+    createData('09:00', casesCounterByHour["09"]),
+    createData('12:00', casesCounterByHour["12"]),
+    createData('15:00', casesCounterByHour["15"]),
+    createData('18:00', casesCounterByHour["18"]),
+    createData('21:00', casesCounterByHour["21"]),
+    createData('24:00', casesCounterByHour["24"]),
+  ];
+
+  var unresolvedCounterString = unresolvedCounter.toString()
+  console.log(unresolvedCounterString)
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -152,7 +209,7 @@ export default function Dashboard() {
                 className={classes.alignItemsAndJustifyContent}
                 sx={{ p: 2,  }}
               >
-                <Unresolved />
+                <Unresolved currentDate={currentDate} counter={unresolvedCounterString}/>
               </Paper>
             </Grid>
             {/* Chart */}
@@ -160,14 +217,14 @@ export default function Dashboard() {
               <Paper
                 sx={{ p: 2, display: 'flex', flexDirection: 'column' }}
               >
-                <Chart />
+                <Chart chartData={chartData} />
               </Paper>
             </Grid>
 
             {/* Recent Cases */}
             <Grid item xs={12}>
               <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                <CasesList />
+                <CasesList casesCollection={casesList}/>
               </Paper>
             </Grid>
           </Grid>

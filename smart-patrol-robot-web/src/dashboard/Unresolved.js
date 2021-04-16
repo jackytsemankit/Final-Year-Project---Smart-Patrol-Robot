@@ -6,15 +6,15 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-export default function Unresolved() {
+export default function Unresolved(props) {
   return (
     <React.Fragment>
       <Title >Today's unresolved</Title>
       <Typography component="p" variant="h4">
-        3
+        {props.counter}
       </Typography>
       <Typography color="textSecondary" sx={{ flex: 1 }}>
-        on 11 March, 2019
+        on {props.currentDate}
       </Typography>
     </React.Fragment>
   );

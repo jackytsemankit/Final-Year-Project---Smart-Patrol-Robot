@@ -5,6 +5,7 @@ import Home from './components/Home';
 import History from './components/History';
 import Dashboard from './dashboard/Dashboard';
 import DetailPage from './detailPage/DetailPage';
+import IntegratedDetailPage from './integratedDetailPage/IntegratedDetailPage';
 
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
         <Route path="/" component={Home} exact />
         <Route path="/history" component={History} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/detail/:paramsdocid" component={DetailPage} />
+        <Route path="/integrated-detail/:paramsdocidprocessed" component={IntegratedDetailPage} />
         <Route path="/detail" component={DetailPage} />
         <Route component={Error} />
       </Switch>

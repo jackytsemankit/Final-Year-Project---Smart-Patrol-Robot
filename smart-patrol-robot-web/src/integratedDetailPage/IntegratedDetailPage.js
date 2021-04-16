@@ -14,11 +14,11 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import HomeIcon from '@material-ui/icons/Home';
+import TempChart from './TempChart';
 
 import { useParams, Route } from 'react-router-dom';
 import { useHistory } from "react-router-dom";
 
-import demo from './demo.png'; 
 import Title from '../components/Title';
 
 import firebaseConfig from '../config/Config'
@@ -26,6 +26,7 @@ import firebaseConfig from '../config/Config'
 import firebase from 'firebase/app'
 import { TrendingUpRounded } from '@material-ui/icons';
 require("firebase/firestore");
+
 
 
 function Copyright(props) {
@@ -60,6 +61,10 @@ function EmptyImages(props) {
   </Grid>
   );
 }
+
+function createData(time, amount) {
+    return { time, amount };
+  }
 
 
 const drawerWidth = 240;
@@ -101,23 +106,23 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function DetailPage(props) {
+export default function IntegratedDetailPage(props) {
   const classes = useStyles();
-  const { paramsdocid } = useParams();
-  console.log(paramsdocid)
+  const { paramsdocidprocessed } = useParams();
+  console.log(paramsdocidprocessed)
   const history = useHistory();
   const [caseDetail, setCaseDetail] = React.useState({})
   const [fetched, setFetched] = React.useState(false)
-  const [docId, setDocId] = React.useState(paramsdocid)
+  const [docId, setDocId] = React.useState(paramsdocidprocessed)
 
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 
   React.useEffect(() => {
 
-    return firebase.firestore().collection("unique_cases").where(firebase.firestore.FieldPath.documentId(), "==", paramsdocid)
+    return firebase.firestore().collection("processed_cases").where(firebase.firestore.FieldPath.documentId(), "==", paramsdocidprocessed)
     .onSnapshot(querySnapshot => {
       var queryResult = {}
-      var id 
+      var id;
       if (!querySnapshot.empty){
         queryResult = querySnapshot.docs[0].data()
         id = querySnapshot.docs[0].id
@@ -136,7 +141,16 @@ export default function DetailPage(props) {
     });
   }, []);
 
+  if (fetched){
+      var chartDataObj = caseDetail.tempdict
+      var tempKey = Object.keys(chartDataObj).sort()
+      var chartData = []
 
+      tempKey.forEach( key => {
+          var temp = createData(key, parseFloat(chartDataObj[key]))
+          chartData.push(temp)
+      })
+  }
 
 
   return (
@@ -206,6 +220,20 @@ export default function DetailPage(props) {
             <EmptyImages classes={classes}/>
           )
           }
+
+          {fetched ? (
+            <Grid item xs={12} >
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                            <TempChart chartData={chartData} />
+                </Paper>
+            </Grid>
+          ):(
+            <Grid item xs={12} >
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                Loading
+                </Paper>
+            </Grid>
+          )}
 
           {fetched ? (
                         <Grid item xs={12}>
