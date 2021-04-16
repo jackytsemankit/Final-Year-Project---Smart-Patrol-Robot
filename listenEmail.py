@@ -6,16 +6,21 @@ import os
 import re
 import requests
 import json
+from PIL import Image
+from operator import itemgetter
 import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
+
+import random
+
 import chardet
-"""
+
 try:
     os.system("start python3 C:/uno100/api/uno.py uno100")
 except:
     print("An exception occurred in calling flask")
-"""
+
 
 cred = credentials.Certificate({
   "type": "service_account",
@@ -36,7 +41,7 @@ firebase_admin.initialize_app(cred,{"storageBucket" : "airport-patrol-robot.apps
 bucket = storage.bucket()
 
 db = firestore.client()
-doc_ref = db.collection(u'cases')
+doc_ref = db.collection(u'cases_final')
 
 imap_ssl_host = 'imap.gmail.com'  
 imap_ssl_port = 993
@@ -94,6 +99,8 @@ print ("listening to the inbox now")
 caseid=1
 while 1:
 
+    filesizes=[]
+
     server = imaplib.IMAP4_SSL(imap_ssl_host, imap_ssl_port)
     server.login(username, password)
     server.select('INBOX')
@@ -118,21 +125,37 @@ while 1:
             captime=""
             temp=""
             wearmask=""
+            loc=""
+            zoneNo=-1
 
             print ('New message :::::::::::::::::::::')
             print (text)
 
             # extract text data and upload to Firebase
             if text:
-                """
+                
                 # call api to get current location of the robot
                 try:
-                    r = requests.get('http://192.168.8.150:5000/status')
+                    r = requests.get('http://192.168.8.150:5000/status')                   
+                    loc=r.json()["base"]["location"]["current"]
+                    #-6.31,-3.13,-0.06,2.5,5.25,8.5
+                    xcor=float(loc.split(",")[0])
+                    if xcor>=-6.35 and xcor<-3.13:
+                        zoneNo=5
+                    elif xcor>=-3.13 and xcor<-0.06:
+                        zoneNo=4
+                    elif xcor>=-0.06 and xcor<2.5:
+                        zoneNo=3
+                    elif xcor>=2.5 and xcor<5.25:
+                        zoneNo=2
+                    elif xcor>=5.25 and xcor<-8.5:
+                        zoneNo=1
+                        
                 except:
                     print("An exception occurred in calling the api")
+                    zoneNo=random.randint(1,5)
                 
-                loc=r.json()["base"]["location"]["current"]
-                """
+                
                 try:
                     capturedatetime=re.search('Event Time: (.*)\r', text).group(1).split(" ")
                     capdate = capturedatetime[0]
@@ -142,7 +165,7 @@ while 1:
                 except:
                     print("An exception occurred in regex")
 
-            count=0
+            
             for part in msg.walk():
 
                 if part.get_content_maintype() == 'multipart':
@@ -150,9 +173,10 @@ while 1:
                 if part.get('Content-Disposition') is None:
                     continue
                 #print(captime)
-                fileName = part.get_filename()[16:30]+".jpg"
+                fileName = part.get_filename()[10:-9]+".jpg"
 
                 print("fileName: ", fileName)
+
 
                 if bool(fileName):
                     
@@ -164,26 +188,48 @@ while 1:
                     fp.write(part.get_payload(decode=True))
                     fp.close()
 
+                    '''
                     #upload to storage                        
                     blob = bucket.blob(fileName)
                     blob.upload_from_filename("./attachments/"+fileName)
                     blob.make_public()
                     img.append(blob.public_url)
+                    '''
+                im=Image.open("attachments/"+fileName)
+                (width, height)=im.size
+                filesizes.append((fileName,(width, height)))
+                
+            for imgs in filesizes:
+                if imgs[1][0]==imgs[1][1]:
+                    os.rename('attachments/'+imgs[0],'attachments/FACE'+imgs[0])
+                    blob = bucket.blob('FACE'+imgs[0])
+                    blob.upload_from_filename('attachments/FACE'+imgs[0])
+                    blob.make_public()
+                    img.append(blob.public_url)
+                    continue
+                                      
+                blob = bucket.blob(imgs[0])
+                blob.upload_from_filename("./attachments/"+imgs[0])
+                blob.make_public()
+                img.append(blob.public_url)
 
-                count+=1
-            
+
             doc_ref.add({
                 u'caseid':caseid,
                 u'solved':"false",
+                u'duplicateChecked':"false",
+                u'processed':"false",
+                u'zoneNo':zoneNo,
                 u'date':capdate,
                 u'time':captime,
                 u'temp':temp,
                 u'wearmask':wearmask,
-                u'img':img,
-                #u'loc':loc
+                u'img':img
+                
                 
                 })
             caseid+=1
+            print("upload completed")
     
     server.logout()
     time.sleep(1)
