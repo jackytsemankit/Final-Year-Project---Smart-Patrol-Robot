@@ -43,6 +43,13 @@ export default function CasesList(props) {
     casesCollectionSolved.sort((a, b) => (a.time < b.time) ? 1 : -1)
     casesCollectionUnsolved.sort((a, b) => (a.time < b.time) ? 1 : -1)
     casesCollection = casesCollectionUnsolved.concat(casesCollectionSolved)
+
+    var rowCount = casesCollection.length
+    casesCollection.forEach( row => {
+      row["rowCount"] = rowCount
+      rowCount = rowCount-1
+    })
+
   } 
 
   return (
@@ -66,7 +73,7 @@ export default function CasesList(props) {
               {pathname: "/detail/".concat(row.docId),
               // state: {caseDetail: row}
               })}>
-              <TableCell>{row.caseid}</TableCell>
+              <TableCell>{row.rowCount}</TableCell>
               <TableCell>{row.date}</TableCell>
               <TableCell>{row.time}</TableCell>
               <TableCell>{row.temp}</TableCell>
