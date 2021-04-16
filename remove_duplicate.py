@@ -26,6 +26,7 @@ cred = credentials.Certificate({
 def get_document(collection_reference):
     today = date.today()
     date_str = today.strftime("%Y-%m-%d")
+    date_str = "2021-04-15"
     results = collection_reference.where(u'date', u'==', date_str).where(u'duplicateChecked', u'==', u'false').get()
     doc_dict_list = []
     
@@ -86,18 +87,21 @@ def document_processing (document_df, raw_ref, ref_to_be_added):
 
     print("processing_done")
 
+
+
 if __name__=="__main__":
     firebase_admin.initialize_app(cred,{"storageBucket" : "airport-patrol-robot.appspot.com"})
 
     bucket = storage.bucket()
 
     db = firestore.client()
-    col_ref_cases = db.collection(u'cases')
+    col_ref_cases = db.collection(u'cases_final')
     col_ref_unique_cases = db.collection(u'unique_cases')
 
     doc_df = get_document(col_ref_cases)
 
     process_df = document_processing(doc_df, col_ref_cases ,col_ref_unique_cases)
+
 
     pass
 

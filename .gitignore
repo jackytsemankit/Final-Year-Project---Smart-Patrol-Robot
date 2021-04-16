@@ -3,3 +3,5 @@ smart-patrol-robot-web/.gitignore
 venv
 .vscode
 Pipfile
+node_modules
+package-lock.js

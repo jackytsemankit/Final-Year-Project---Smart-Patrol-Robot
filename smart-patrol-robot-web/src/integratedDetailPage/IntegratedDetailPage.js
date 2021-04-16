@@ -143,7 +143,7 @@ export default function IntegratedDetailPage(props) {
 
   if (fetched){
       var chartDataObj = caseDetail.tempdict
-      var tempKey = Object.keys(chartDataObj)
+      var tempKey = Object.keys(chartDataObj).sort()
       var chartData = []
 
       tempKey.forEach( key => {
