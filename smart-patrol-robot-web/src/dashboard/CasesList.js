@@ -70,7 +70,7 @@ export default function CasesList(props) {
           {casesCollection.map((row) => (
             <TableRow key={row.id} hover style={{...getRowStyle(row.solved)}}
             onClick={() => history.push(
-              {pathname: "/detail/".concat(row.docId),
+              {pathname: "/integrated-detail/".concat(row.docId),
               // state: {caseDetail: row}
               })}>
               <TableCell>{row.rowCount}</TableCell>
