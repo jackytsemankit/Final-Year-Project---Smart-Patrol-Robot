@@ -12,7 +12,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
 
-import random
 
 import chardet
 
@@ -153,7 +152,6 @@ while 1:
                         
                 except:
                     print("An exception occurred in calling the api")
-                    zoneNo=random.randint(1,5)
                 
                 
                 try:
