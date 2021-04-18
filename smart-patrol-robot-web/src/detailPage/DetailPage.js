@@ -97,7 +97,7 @@ const useStyles = makeStyles((theme) => ({
 export default function DetailPage(props) {
   const classes = useStyles();
   const { paramsdocid } = useParams();
-  console.log(paramsdocid)
+  // console.log(paramsdocid)
   const history = useHistory();
   const [caseDetail, setCaseDetail] = React.useState({})
   const [fetched, setFetched] = React.useState(false)
@@ -122,7 +122,7 @@ export default function DetailPage(props) {
           queryResult['solved'] = "Unsolved"
         }
       }
-      console.log(queryResult)
+      //console.log(queryResult)
       setCaseDetail(queryResult)
       setFetched(true)
       setDocId(id)

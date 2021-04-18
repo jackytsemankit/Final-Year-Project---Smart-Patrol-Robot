@@ -163,7 +163,6 @@ export default function Dashboard() {
   ];
 
   var unresolvedCounterString = unresolvedCounter.toString()
-  console.log(unresolvedCounterString)
 
   return (
     <Box sx={{ display: 'flex' }}>

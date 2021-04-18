@@ -104,7 +104,6 @@ const useStyles = makeStyles((theme) => ({
 export default function IntegratedDetailPage(props) {
   const classes = useStyles();
   const { paramsdocidprocessed } = useParams();
-  console.log(paramsdocidprocessed)
   const history = useHistory();
   const [caseDetail, setCaseDetail] = React.useState({})
   const [fetched, setFetched] = React.useState(false)
@@ -129,7 +128,7 @@ export default function IntegratedDetailPage(props) {
           queryResult['solved'] = "Unsolved"
         }
       }
-      console.log(queryResult)
+      // console.log(queryResult)
       if (queryResult){
         setCaseDetail(queryResult)
         setFetched(true)
