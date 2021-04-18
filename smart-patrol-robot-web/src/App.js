@@ -1,8 +1,5 @@
-import logo from './logo.svg';
 import './App.css';
 import { Switch, Route } from 'react-router-dom';
-import Home from './components/Home';
-import History from './components/History';
 import Dashboard from './dashboard/Dashboard';
 import DetailPage from './detailPage/DetailPage';
 import IntegratedDetailPage from './integratedDetailPage/IntegratedDetailPage';
@@ -12,12 +9,10 @@ function App() {
   return (
     <main>
       <Switch>
-        <Route path="/" component={Home} exact />
-        <Route path="/history" component={History} />
+        <Route path="/" component={Dashboard} exact />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/detail/:paramsdocid" component={DetailPage} />
         <Route path="/integrated-detail/:paramsdocidprocessed" component={IntegratedDetailPage} />
-        <Route path="/detail" component={DetailPage} />
         <Route component={Error} />
       </Switch>
     </main>

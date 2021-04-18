@@ -12,19 +12,16 @@ import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import HomeIcon from '@material-ui/icons/Home';
 import TempChart from './TempChart';
 
-import { useParams, Route } from 'react-router-dom';
-import { useHistory } from "react-router-dom";
+import { useParams, useHistory} from 'react-router-dom';
 
 import Title from '../components/Title';
 
 import firebaseConfig from '../config/Config'
 
 import firebase from 'firebase/app'
-import { TrendingUpRounded } from '@material-ui/icons';
 require("firebase/firestore");
 
 
@@ -47,7 +44,7 @@ function CamImages(props) {
   return (
     <Grid item xs={12} md={4}>
       <Paper className={props.classes.alignItemsAndJustifyContent}>
-          <img src={props.caseDetail['img'][props.index]} style={{width:'100%', height:'auto'}}/>
+          <img src={props.caseDetail['img'][props.index]} style={{width:'100%', height:'auto'}} alt=""/>
       </Paper>
   </Grid>
   );
@@ -66,8 +63,6 @@ function createData(time, amount) {
     return { time, amount };
   }
 
-
-const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   toolbar: {
@@ -141,7 +136,7 @@ export default function IntegratedDetailPage(props) {
         setDocId(id)
       }
     });
-  }, []);
+  });
 
   if (fetched){
       var chartDataObj = {}

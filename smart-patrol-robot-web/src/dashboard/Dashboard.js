@@ -14,9 +14,9 @@ import Chart from './Chart';
 import Unresolved from './Unresolved';
 import CasesList from './CasesList';
 import firebaseConfig from '../config/Config'
-
 import firebase from 'firebase/app'
 require("firebase/firestore");
+
 
 
 
@@ -73,12 +73,9 @@ export default function Dashboard() {
   const classes = useStyles();
   const [casesList, setCasesList] = React.useState([])
 
-
-  //var currentDate =  new Date()
-  var currentDate = new Date("2021-04-15");
+  var currentDate =  new Date()
+  // var currentDate = new Date("2021-04-15");
   currentDate = currentDate.toISOString().split('T')[0]
-
-  // console.log(currentDate)
 
 
   if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -105,7 +102,7 @@ export default function Dashboard() {
       }
       setCasesList(casesCollection);
     });
-  }, []);
+  });
 
   var casesCounterByHour = {
     "00": 0, 

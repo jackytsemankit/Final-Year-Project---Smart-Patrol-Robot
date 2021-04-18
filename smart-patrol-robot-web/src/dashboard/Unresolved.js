@@ -2,9 +2,6 @@ import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Title from '../components/Title';
 
-function preventDefault(event) {
-  event.preventDefault();
-}
 
 export default function Unresolved(props) {
   return (

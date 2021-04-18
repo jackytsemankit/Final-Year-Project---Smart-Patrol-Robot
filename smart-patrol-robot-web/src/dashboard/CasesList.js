@@ -11,9 +11,6 @@ function getRowStyle(status) {
   return { background: status==="Solved" ? '#ebebeb' : 'white',
             hover: {color: '#7EA5FF'}};
 }
-function preventDefault(event) {
-  event.preventDefault();
-}
 
 // function cellClicked (rowId) {
 //   console.log(rowId)
