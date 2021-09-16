@@ -1,6 +1,8 @@
 # fyp-smart-patrol-robot
 Development of an automatic body-temperature measurement system for the Patrol Robots from the Hong Kong Airport Authorities
-# demo video: https://drive.google.com/file/d/1FlC67g8ujsi1aycSVp6EwEqEc0T3RYVj/view?usp=sharing
+# Demo video: 
+https://drive.google.com/file/d/1FlC67g8ujsi1aycSVp6EwEqEc0T3RYVj/view?usp=sharing
+
 ![image](https://user-images.githubusercontent.com/56995686/133652700-a49b7fb8-9545-4cfb-ad45-21450c180a40.png)
 
 
